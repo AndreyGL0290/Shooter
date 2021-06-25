@@ -1,9 +1,8 @@
 `
 TO DO LIST:
 
-1) Убрать грязь у отрисовки пули (нажми на холст и все поймешь)
+1) Сделать движение равномерным в независимости от места нажатия (mouseLoc)
 
-2) Сделать движение равномерным в независимости от места нажатия (mouseLos)
 `
 
 let canvas = document.getElementById("canvas");
@@ -16,7 +15,8 @@ const sprite = {
 };
 
 const bullet = {
-    size: 10
+    size: 10,
+    speed: 15
 };
 
 context.fillStyle = 'black';
@@ -30,7 +30,7 @@ canvas.height = canvas.clientHeight;
 const mainSprite = () => {
     img = new Image();
     // Отрисовывать спрайта только когда загрузится картинка со спрайтом
-    img.onload = function() {
+    img.onload = function () {
         context.drawImage(img, canvas.width / 2 - img.width / 2, canvas.height / 2 - img.height / 2);
     };
     img.src = 'images/mainSprite.png';
@@ -46,30 +46,77 @@ canvas.addEventListener('mousedown', func = (e) => {
 
     // Координаты коца ствола
     const gunEnd = {
-        X: canvas.width / 2 + img.width / 2 + bullet.size / 2,
+        X: (canvas.width / 2 + img.width / 2 + bullet.size / 2) + 1,
         Y: canvas.height / 2 - 14 + bullet.size / 2
     };
 
-    let step = 0;
-    const breaker = 9;
-    const movementX = (mouseLoc.X - gunEnd.X) / breaker;
-    const movementY = (mouseLoc.Y - gunEnd.Y) / breaker;
+    let X = gunEnd.X;
+    let Y = gunEnd.Y;
 
-    // запускаем функцию отрисовки пули каждые 0.5 секунды, когда она выйдет за границу экрана - отрисовка прекратится
+    // Отношение вектора X и вектора Y
+
+    // Запускаем функцию отрисовки пули каждые 0.1 секунды, когда она выйдет за границу экрана - отрисовка прекратится
     const timerId = setInterval(() => {
-        if ((gunEnd.X + movementX * step) - 5 >= canvas.width ||
-        (gunEnd.Y + movementY * step) - 5 >= canvas.height ||
-        (gunEnd.X + movementX * step) - 5 <= 0 ||
-        (gunEnd.Y + movementY * step) - 5 <= 0){
+        if (X - bullet.size / 2 >= canvas.width ||
+            Y - bullet.size / 2 >= canvas.height ||
+            X - bullet.size / 2 <= 0 ||
+            Y - bullet.size / 2 <= 0) {
             clearInterval(timerId);
         }
-        context.fillRect((gunEnd.X + movementX * step) - 5, (gunEnd.Y + movementY * step) - 5, bullet.size, bullet.size);
-        if (step != 0){
-            context.clearRect((gunEnd.X + movementX * (step - 1)) - 5, (gunEnd.Y + movementY * (step - 1)) - 5, bullet.size, bullet.size);
-        }
-        step += 1;
-    }, 500);
 
+        // Разделим холст на четыре сектора
+        // Право низ
+        if (mouseLoc.Y >= gunEnd.Y && mouseLoc.X >= gunEnd.X) {
+            if (X != gunEnd.X) {
+                context.clearRect(X - 5.5 - bullet.speed * Math.abs(ratio), Y - 5.5 - bullet.speed, 11, 11);
+            }
+            context.fillRect(X - bullet.size / 2, Y - bullet.size / 2, bullet.size, bullet.size);
+            X += bullet.speed * Math.abs(ratio);
+            Y += bullet.speed;
+        }
+        // Лево низ
+        else if (mouseLoc.Y >= gunEnd.Y && mouseLoc.X < gunEnd.X) {
+            if (X != gunEnd.X) {
+                context.clearRect(X - 5.5 + bullet.speed * Math.abs(ratio), Y - 5.5 - bullet.speed, 11, 11);
+            }
+            context.fillRect(X - bullet.size / 2, Y - bullet.size / 2, bullet.size, bullet.size);
+            X -= bullet.speed * Math.abs(ratio);
+            Y += bullet.speed;
+        }
+        // Право верх
+        else if (mouseLoc.Y < gunEnd.Y && mouseLoc.X >= gunEnd.X) {
+            if (X != gunEnd.X) {
+                context.clearRect(X - 5.5 - bullet.speed * Math.abs(ratio), Y - 5.5 + bullet.speed, 11, 11);
+            }
+            context.fillRect(X - bullet.size / 2, Y - bullet.size / 2, bullet.size, bullet.size);
+            X += bullet.speed * Math.abs(ratio);
+            Y -= bullet.speed;
+        }
+        // Лево верх
+        else if (mouseLoc.Y < gunEnd.Y && mouseLoc.X < gunEnd.X) {
+            let iters;
+            let distantY = Math.abs(mouseLoc.Y - gunEnd.Y);
+            let distantX = Math.abs(mouseLoc.X - gunEnd.X);
+            if (Math.abs(mouseLoc.X - gunEnd.X) > Math.abs(mouseLoc.Y - gunEnd.Y)){
+                iters = Math.abs(gunEnd.X - mouseLoc.X) / bullet.speed;
+                if (X != gunEnd.X){
+                    context.clearRect(X - 5.5 + bullet.speed, Y - 5.5 + distantY / iters, 11, 11);
+                }
+                context.fillRect(X - bullet.size / 2, Y - bullet.size / 2, bullet.size, bullet.size);
+                X -= bullet.speed;
+                Y -= distantY / iters;
+            }
+            if (Math.abs(mouseLoc.X - gunEnd.X) < Math.abs(mouseLoc.Y - gunEnd.Y)){
+                iters = Math.abs(gunEnd.Y - mouseLoc.Y) / bullet.speed;
+                if (X != gunEnd.X){
+                    context.clearRect(X - 5.5 + distantX / iters, Y - 5.5 + bullet.speed, 11, 11);
+                }
+                context.fillRect(X - bullet.size / 2, Y - bullet.size / 2, bullet.size, bullet.size);
+                X -= distantX / iters;
+                Y -= bullet.speed;
+            }
+        }
+    }, 10);
 }, false)
 
 mainSprite();
