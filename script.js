@@ -4,9 +4,13 @@ TO DO LIST:
 1) Сделать соперников
 
 `
+import { enemySpawn } from "./enemy.js";
+const countDown = () => {
+    setTimeout(enemySpawn, 3000);
+};
 
-let canvas = document.getElementById("canvas");
-let context = canvas.getContext("2d");
+export let canvas = document.getElementById("canvas");
+export let context = canvas.getContext("2d");
 let img = new Image();
 img.src = 'images/mainSpriteRight.png';
 let iters;
@@ -34,53 +38,39 @@ let sprite = {
 let pressedKeys = {};
 onkeydown = onkeyup = function (e) {
     pressedKeys[e.keyCode] = e.type == 'keydown';
-    // Кнопка W
-    if (pressedKeys[87] && sprite.Y > 0) {
-        context.clearRect(sprite.X, sprite.Y, img.width, img.height);
-        sprite.Y -= sprite.speed;
-        if (img.src == 'http://127.0.0.1:5500/images/mainSpriteRight.png') {
-            // Отрисовывает персонажа с другими координатами
-            turnRight();
-        } else {
-            // Отрисовывает персонажа с другими координатами
-            turnLeft();
+    // Функция бинда кнопок
+    const movement = (key_code, axis, factor) => {
+        if (pressedKeys[key_code]) {
+            context.clearRect(sprite.X, sprite.Y, img.width, img.height);
+            if (axis == sprite.Y) {
+                sprite.Y += sprite.speed * factor;
+            } else {
+                sprite.X += sprite.speed * factor;
+            }
+            if (img.src == 'http://127.0.0.1:5500/images/mainSpriteRight.png') {
+                // Отрисовывает персонажа с другими координатами
+                turnRight();
+            } else {
+                // Отрисовывает персонажа с другими координатами
+                turnLeft();
+            }
         }
+    }
+    // Кнопка W
+    if (sprite.Y > 0) {
+        movement(87, sprite.Y, -1);
     }
     // Кнопка S
-    if (pressedKeys[83] && sprite.Y < canvas.height - img.height) {
-        context.clearRect(sprite.X, sprite.Y, img.width, img.height);
-        sprite.Y += sprite.speed;
-        if (img.src == 'http://127.0.0.1:5500/images/mainSpriteRight.png') {
-            // Отрисовывает персонажа с другими координатами
-            turnRight();
-        } else {
-            // Отрисовывает персонажа с другими координатами
-            turnLeft();
-        }
-    }
-    // Кнопка A
-    if (pressedKeys[65] && sprite.X > 0) {
-        context.clearRect(sprite.X, sprite.Y, img.width, img.height);
-        sprite.X -= sprite.speed;
-        if (img.src == 'http://127.0.0.1:5500/images/mainSpriteRight.png') {
-            // Отрисовывает персонажа с другими координатами
-            turnRight();
-        } else {
-            // Отрисовывает персонажа с другими координатами
-            turnLeft();
-        }
+    if (sprite.Y + img.height < canvas.height) {
+        movement(83, sprite.Y, 1);
     }
     // Кнопка D
-    if (pressedKeys[68] && sprite.X < canvas.width - img.width) {
-        context.clearRect(sprite.X, sprite.Y, img.width, img.height);
-        sprite.X += sprite.speed;
-        if (img.src == 'http://127.0.0.1:5500/images/mainSpriteRight.png') {
-            // Отрисовывает персонажа с другими координатами
-            turnRight();
-        } else {
-            // Отрисовывает персонажа с другими координатами
-            turnLeft();
-        }
+    if (sprite.X + img.width < canvas.width) {
+        movement(68, sprite.X, 1);
+    }
+    // Кнопка A
+    if (sprite.X > 0) {
+        movement(65, sprite.X, -1);
     }
 }
 
