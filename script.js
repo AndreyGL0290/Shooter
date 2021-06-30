@@ -8,7 +8,16 @@ import { enemySpawn } from "./enemy.js";
 const countDown = () => {
     setTimeout(enemySpawn, 3000, 1);
 };
-countDown();
+let enemyDead;
+let enemyImg = new Image();
+let enemyCoords = {
+    X: 100,
+    Y: 100
+};
+enemyImg.onload = function () {
+    context.drawImage(enemyImg, enemyCoords.X, enemyCoords.Y);
+};
+enemyImg.src = 'images/monster.png';
 
 export let canvas = document.getElementById("canvas");
 export let context = canvas.getContext("2d");
@@ -115,11 +124,18 @@ canvas.addEventListener('mousedown', (e) => {
     // Функция отвечающая за полет пули
     const gunShot = (factor1, factor2) => {
         if (Math.abs(mouseLoc.X - gunEnd.X) > Math.abs(mouseLoc.Y - gunEnd.Y)) {
+            // Проверка убит враг или нет
             iters = Math.abs(gunEnd.X - mouseLoc.X) / bullet.speed;
             if (X != gunEnd.X) {
                 context.clearRect(X - 5.5 - bullet.speed * factor1, Y - 5.5 - (distantY / iters) * factor2, 11, 11);
             }
             context.fillRect(X - bullet.size / 2, Y - bullet.size / 2, bullet.size, bullet.size);
+            if ((X >= enemyCoords.X && X <= enemyCoords.X + enemyImg.width) && (Y <= enemyCoords.Y + enemyImg.height && Y >= enemyCoords.Y) && !enemyDead) {
+                context.clearRect(enemyCoords.X, enemyCoords.Y, enemyImg.width, enemyImg.height);
+                context.clearRect(X - bullet.size / 2, Y - bullet.size / 2, bullet.size, bullet.size);
+                enemyDead = true;
+                clearInterval(timerId);
+            }
             X += bullet.speed * factor1;
             Y += (distantY / iters) * factor2;
         }
@@ -127,6 +143,12 @@ canvas.addEventListener('mousedown', (e) => {
             iters = Math.abs(gunEnd.Y - mouseLoc.Y) / bullet.speed;
             if (X != gunEnd.X) {
                 context.clearRect(X - 5.5 - (distantX / iters) * factor1, Y - 5.5 - bullet.speed * factor2, 11, 11);
+            }
+            if ((X >= enemyCoords.X && X <= enemyCoords.X + enemyImg.width) && (Y <= enemyCoords.Y + enemyImg.height && Y >= enemyCoords.Y) && !enemyDead) {
+                context.clearRect(enemyCoords.X, enemyCoords.Y, enemyImg.width, enemyImg.height);
+                context.clearRect(X - bullet.size / 2, Y - bullet.size / 2, bullet.size, bullet.size);
+                enemyDead = true;
+                clearInterval(timerId);
             }
             context.fillRect(X - bullet.size / 2, Y - bullet.size / 2, bullet.size, bullet.size);
             X += (distantX / iters) * factor1;
@@ -144,7 +166,6 @@ canvas.addEventListener('mousedown', (e) => {
             context.clearRect(X, Y, bullet.size, bullet.size);
             clearInterval(timerId);
         }
-
         // Разделим холст на четыре сектора
         // Право низ
         if (mouseLoc.Y >= gunEnd.Y && mouseLoc.X >= gunEnd.X) {
