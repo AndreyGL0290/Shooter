@@ -6,8 +6,9 @@ TO DO LIST:
 `
 import { enemySpawn } from "./enemy.js";
 const countDown = () => {
-    setTimeout(enemySpawn, 3000);
+    setTimeout(enemySpawn, 3000, 1);
 };
+countDown();
 
 export let canvas = document.getElementById("canvas");
 export let context = canvas.getContext("2d");
@@ -28,7 +29,7 @@ canvas.width = canvas.clientWidth;
 canvas.height = canvas.clientHeight;
 
 // Характеристики персонажа 
-let sprite = {
+export let sprite = {
     X: canvas.width / 2 - img.width / 2,
     Y: canvas.height / 2 - img.height / 2,
     speed: 5
