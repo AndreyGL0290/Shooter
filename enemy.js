@@ -1,6 +1,11 @@
 import { canvas as cnv, context as ctx, sprite, bullet, img as spriteImg } from "./script.js";
 let CoordX;
 let CoordY;
+let enemy1;
+let enemy2;
+let pointX;
+let pointY;
+let myBool = true;
 export let img = new Image();
 img.src = "images/monster.png";
 
@@ -37,68 +42,55 @@ export const enemySpawn = (numberOfEnemies) => {
         }
         for (let key1 in enemyList) {
             for (let key2 in enemyList) {
-                // enemy и key не сходятся потому что был баг и такое расположение его фиксит
-                let enemy1 = enemyList[key2];
-                let enemy2 = enemyList[key1];
+                enemy1 = enemyList[key1];
+                enemy2 = enemyList[key2];
                 if (key1 != key2) {
-                    while (true) {
-                        // Левая верхняя точка внутри другой фигуры
-                        if (enemy1.X >= enemy2.X && enemy1.X <= enemy2.X + img.width && enemy1.Y >= enemy2.Y && enemy1.Y <= enemy2.Y + img.height) {
-                            if (enemy1.Right) {
-                                enemy1.X = Math.random().toFixed(4) * 10000;
-                                while (enemy1.X <= (sprite.X + spriteImg.width + bullet.size / 2 + 1) + 300 || enemy1.X + img.width >= cnv.width) {
-                                    enemy1.X = Math.random().toFixed(4) * 10000;
+                    if (enemyList[key1].Right) {
+                        if (wrongLoc(enemy1.X, enemy1.Y, enemy2.X, enemy2.Y, img)) {
+                            myBool = true;
+                            pointY = Math.random().toFixed(3) * 1000;
+                            while (pointY > cnv.height - img.height) {
+                                pointY = Math.random().toFixed(3) * 1000;
+                            }
+                            while (myBool) {
+                                pointX = Math.random().toFixed(4) * 10000;
+                                while (pointX <= (sprite.X + spriteImg.width + bullet.size / 2 + 1) + 300 || pointX + img.width >= cnv.width) {
+                                    pointX = Math.random().toFixed(4) * 10000;
                                 }
-                            } else {
-                                enemy1.X = Math.random().toFixed(3) * 1000;
-                                while (enemy1.X >= (sprite.X - bullet.size / 2 - 1) - 300) {
-                                    enemy1.X = Math.random().toFixed(3) * 1000;
+                                for (let key in enemyList) {
+                                    if (wrongLoc(pointX, pointY, enemyList[key].X, enemyList[key].Y, img)) {
+                                        myBool = true;
+                                        break;
+                                    } else {
+                                        myBool = false
+                                    }
                                 }
                             }
+                            enemy1.X = pointX;
+                            enemy1.Y = pointY;
                         }
-                        // Левая нижняя точка внутри другой фигуры
-                        else if (enemy1.X >= enemy2.X && enemy1.X <= enemy2.X + img.width && enemy1.Y + img.height >= enemy2.Y && enemy1.Y + img.height <= enemy2.Y + img.height) {
-                            if (enemy1.Right) {
-                                enemy1.X = Math.random().toFixed(4) * 10000;
-                                while (enemy1.X <= (sprite.X + spriteImg.width + bullet.size / 2 + 1) + 300 || enemy1.X + img.width >= cnv.width) {
-                                    enemy1.X = Math.random().toFixed(4) * 10000;
+                    } else {
+                        if (wrongLoc(enemy1.X, enemy1.Y, enemy2.X, enemy2.Y, img)) {
+                            myBool = true;
+                            pointY = Math.random().toFixed(3) * 1000;
+                            while (pointY > cnv.height - img.height) {
+                                pointY = Math.random().toFixed(3) * 1000;
+                            }
+                            while (myBool) {
+                                pointX = Math.random().toFixed(3) * 1000;
+                                while (pointX >= (sprite.X - bullet.size / 2 - 1) - 300) {
+                                    pointX = Math.random().toFixed(3) * 1000;
                                 }
-                            } else {
-                                enemy1.X = Math.random().toFixed(3) * 1000;
-                                while (enemy1.X >= (sprite.X - bullet.size / 2 - 1) - 300) {
-                                    enemy1.X = Math.random().toFixed(3) * 1000;
+                                for (let key in enemyList) {
+                                    if (wrongLoc(pointX, pointY, enemyList[key].X, enemyList[key].Y, img)) {
+                                        break;
+                                    } else {
+                                        myBool = false
+                                    }
                                 }
                             }
-                        }
-                        // Правая верхняя точка внутри другой фигуры
-                        else if (enemy1.X + img.width >= enemy2.X && enemy1.X + img.width <= enemy2.X + img.width && enemy1.Y >= enemy2.Y && enemy1.Y <= enemy2.Y + img.height) {
-                            if (enemy1.Right) {
-                                enemy1.X = Math.random().toFixed(4) * 10000;
-                                while (enemy1.X <= (sprite.X + spriteImg.width + bullet.size / 2 + 1) + 300 || enemy1.X + img.width >= cnv.width) {
-                                    enemy1.X = Math.random().toFixed(4) * 10000;
-                                }
-                            } else {
-                                enemy1.X = Math.random().toFixed(3) * 1000;
-                                while (enemy1.X >= (sprite.X - bullet.size / 2 - 1) - 300) {
-                                    enemy1.X = Math.random().toFixed(3) * 1000;
-                                }
-                            }
-                        }
-                        // Правая нижняя точка внутри другой фигуры
-                        else if (enemy1.X + img.width >= enemy2.X && enemy1.X + img.width <= enemy2.X + img.width && enemy1.Y + img.height >= enemy2.Y && enemy1.Y + img.height <= enemy2.Y + img.height) {
-                            if (enemy1.Right) {
-                                enemy1.X = Math.random().toFixed(4) * 10000;
-                                while (enemy1.X <= (sprite.X + spriteImg.width + bullet.size / 2 + 1) + 300 || enemy1.X + img.width >= cnv.width) {
-                                    enemy1.X = Math.random().toFixed(4) * 10000;
-                                }
-                            } else {
-                                enemy1.X = Math.random().toFixed(3) * 1000;
-                                while (enemy1.X >= (sprite.X - bullet.size / 2 - 1) - 300) {
-                                    enemy1.X = Math.random().toFixed(3) * 1000;
-                                }
-                            }
-                        } else {
-                            break
+                            enemy1.X = pointX;
+                            enemy1.Y = pointY;
                         }
                     }
                 }
@@ -108,4 +100,11 @@ export const enemySpawn = (numberOfEnemies) => {
             ctx.drawImage(img, enemyList[key].X, enemyList[key].Y);
         }
     }
+}
+
+const wrongLoc = (X1, Y1, X2, Y2, img) => {
+    return (X1 >= X2 && X1 <= X2 + img.width && Y1 >= Y2 && Y1 <= Y2 + img.height) ||
+        (X1 >= X2 && X1 <= X2 + img.width && Y1 + img.height >= Y2 && Y1 + img.height <= Y2 + img.height) ||
+        (X1 + img.width >= X2 && X1 + img.width <= X2 + img.width && Y1 >= Y2 && Y1 <= Y2 + img.height) ||
+        (X1 + img.width >= X2 && X1 + img.width <= X2 + img.width && Y1 + img.height >= Y2 && Y1 + img.height <= Y2 + img.height);
 }

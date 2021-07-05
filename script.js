@@ -3,8 +3,6 @@ TO DO LIST:
 
 1) Написать логику для поведеня соперников
 
-2) Доделать убийство соперников
-
 `
 import { enemySpawn, enemyList, img as enemyImg } from "./enemy.js";
 
@@ -35,8 +33,10 @@ export let sprite = {
 };
 
 // Спавнит 3 врагов рядом с персонажем
-enemySpawn(3);
-
+enemySpawn(10);
+// setTimeout(() => {
+//     console.log(enemyList);
+// },10)
 // Функция, отслеживающая состоние клавишей
 let pressedKeys = {};
 onkeydown = onkeyup = function (e) {
@@ -105,7 +105,8 @@ canvas.addEventListener('mousedown', (e) => {
     }
     else if (mouseLoc.X <= sprite.X - bullet.size / 2 - 1 && mouseLoc.Y > gunEnd.Y) {
         for (let key in enemyList) {
-            if (enemyList[key].X <= sprite.X - bullet.size / 2 - 1 && enemyList[key].Y > gunEnd.Y) {
+            if (enemyList[key].X <= sprite.X - bullet.size / 2 - 1 && enemyList[key].Y > gunEnd.Y ||
+                enemyList[key].X <= sprite.X - bullet.size / 2 - 1 && enemyList[key].Y + enemyImg.height > gunEnd.Y) {
                 potentiallyEnemies[key] = enemyList[key];
             }
         }
@@ -119,11 +120,13 @@ canvas.addEventListener('mousedown', (e) => {
     }
     else if (mouseLoc.X > sprite.X + img.width + bullet.size / 2 + 1 && mouseLoc.Y > gunEnd.Y) {
         for (let key in enemyList) {
-            if (enemyList[key].X > sprite.X + img.width + bullet.size / 2 + 1 && enemyList[key].Y > gunEnd.Y) {
+            if (enemyList[key].X > sprite.X + img.width + bullet.size / 2 + 1 && enemyList[key].Y > gunEnd.Y ||
+                enemyList[key].X > sprite.X + img.width + bullet.size / 2 + 1 && enemyList[key].Y + enemyImg.height > gunEnd.Y) {
                 potentiallyEnemies[key] = enemyList[key];
             }
         }
     }
+    // console.log(potentiallyEnemies);
 
     // Игрок не может стрелять вверх и вниз
     if (mouseLoc.X >= sprite.X - bullet.size / 2 - 1 && mouseLoc.X <= sprite.X + img.width + bullet.size / 2 + 1) {
@@ -159,10 +162,10 @@ canvas.addEventListener('mousedown', (e) => {
             context.fillRect(X - bullet.size / 2, Y - bullet.size / 2, bullet.size, bullet.size);
             for (let key in potentiallyEnemies) {
                 enemyCoords = potentiallyEnemies[key];
-                if ((X >= enemyCoords.X && X <= enemyCoords.X + enemyImg.width) && (Y <= enemyCoords.Y + enemyImg.height && Y >= enemyCoords.Y && !enemyCoords.Dead)) {
+                if (wrongLoc(X, Y, enemyCoords.X, enemyCoords.Y, bullet.size, enemyImg) && !enemyCoords.Dead) {
                     enemyList[key].Dead = true;
                     context.clearRect(enemyCoords.X, enemyCoords.Y, enemyImg.width, enemyImg.height);
-                    context.clearRect(X - bullet.size / 2, Y - bullet.size / 2, bullet.size, bullet.size);
+                    context.clearRect(X - (bullet.size + 1) / 2, Y - (bullet.size + 1) / 2, bullet.size + 1, bullet.size + 1);
                     clearInterval(timerId);
                 }
             }
@@ -174,16 +177,16 @@ canvas.addEventListener('mousedown', (e) => {
             if (X != gunEnd.X) {
                 context.clearRect(X - 5.5 - (distantX / iters) * factor1, Y - 5.5 - bullet.speed * factor2, 11, 11);
             }
+            context.fillRect(X - bullet.size / 2, Y - bullet.size / 2, bullet.size, bullet.size);
             for (let key in potentiallyEnemies) {
                 enemyCoords = potentiallyEnemies[key];
-                if ((X >= enemyCoords.X && X <= enemyCoords.X + enemyImg.width) && (Y <= enemyCoords.Y + enemyImg.height && Y >= enemyCoords.Y) && !enemyCoords.Dead) {
+                if (wrongLoc(X, Y, enemyCoords.X, enemyCoords.Y, bullet.size, enemyImg) && !enemyCoords.Dead) {
                     enemyList[key].Dead = true;
                     context.clearRect(enemyCoords.X, enemyCoords.Y, enemyImg.width, enemyImg.height);
-                    context.clearRect(X - bullet.size / 2, Y - bullet.size / 2, bullet.size, bullet.size);
+                    context.clearRect(X - (bullet.size + 1) / 2, Y - (bullet.size + 1) / 2, bullet.size + 1, bullet.size + 1);
                     clearInterval(timerId);
                 }
             }
-            context.fillRect(X - bullet.size / 2, Y - bullet.size / 2, bullet.size, bullet.size);
             X += (distantX / iters) * factor1;
             Y += bullet.speed * factor2;
         }
@@ -238,6 +241,14 @@ const turnLeft = () => {
         context.drawImage(img, sprite.X, sprite.Y);
     };
     img.src = 'images/mainSpriteLeft.png';
+}
+
+// Функция, определяющая позиции пуль относительно пуль
+const wrongLoc = (X1, Y1, X2, Y2, img1, img2) => {
+    return (X1 >= X2 && X1 <= X2 + img2.width && Y1 >= Y2 && Y1 <= Y2 + img2.height) ||
+        (X1 >= X2 && X1 <= X2 + img2.width && Y1 + img1.height >= Y2 && Y1 + img1.height <= Y2 + img2.height) ||
+        (X1 + img1.width >= X2 && X1 + img1.width <= X2 + img2.width && Y1 >= Y2 && Y1 <= Y2 + img2.height) ||
+        (X1 + img1.width >= X2 && X1 + img1.width <= X2 + img2.width && Y1 + img1.height >= Y2 && Y1 + img1.height <= Y2 + img2.height);
 }
 
 turnRight();
