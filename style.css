@@ -6,8 +6,17 @@ body{
 #canvas{
     width: 100%;
     height: 100%;
-    background-color: #589b0b;
-    border: 0px black solid;
+    background-color: rgba(0, 0, 0, 0);
+    position: absolute;
+    left: 0;
+}
+
+#canvas-health {
+    position: absolute;
+    background-color:#589b0b;
+    width: 100%;
+    height: 100%;
+    left: 0;
 }
 
 #canvas-container{
