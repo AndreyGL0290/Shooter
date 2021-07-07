@@ -16,44 +16,52 @@ export let enemyList = {};
 
 // Функия заставляющая всех врагов ходить
 export const enemyMovement = (X, Y, key) => {
-    if (!enemyList[key].Dead && !sprite.Dead) {
-        distanceX = Math.abs((sprite.X - spriteImg.width / 2) - (enemyList[key].X - img.width / 2));
-        distanceY = Math.abs((sprite.Y - spriteImg.height / 2) - (enemyList[key].Y - img.height / 2));
+    if (!enemyList[key].Dead && sprite.Health != 0) {
+        distanceX = Math.abs(sprite.X - X);
+        distanceY = Math.abs(sprite.Y - Y);
         ctx.clearRect(X, Y, img.width, img.height);
-        if (Math.abs((sprite.X - spriteImg.width / 2) - (enemyList[key].X - img.width / 2)) > Math.abs((sprite.Y - spriteImg.height / 2) - (enemyList[key].Y - img.height / 2))) {
-            iters = Math.abs((sprite.X - spriteImg.width / 2) - enemyList[key].X) / enemyList[key].Speed;
-            if (X <= sprite.X + spriteImg.width / 2 && Y <= sprite.Y + img.height / 2) {
+        if (Math.abs(sprite.X - X) > Math.abs(sprite.Y - Y)) {
+            iters = Math.abs(sprite.X - X) / enemyList[key].Speed;
+            // Лево верх
+            if (X <= sprite.X + spriteImg.width / 2 - img.width / 2 && Y <= sprite.Y + spriteImg.height / 2 - img.height / 2) {
                 X += enemyList[key].Speed;
                 Y += distanceY / iters;
             }
-            else if (X <= sprite.X + spriteImg.width / 2 && Y > sprite.Y + img.height / 2) {
+            // Лево низ
+            else if (X <= sprite.X + spriteImg.width / 2 - img.width / 2 && Y > sprite.Y + spriteImg.height / 2 - img.height / 2) {
                 X += enemyList[key].Speed;
                 Y -= distanceY / iters;
             }
-            else if (X > sprite.X + spriteImg.width / 2 && Y <= sprite.Y + img.height / 2) {
+            // Право верх
+            else if (X > sprite.X + spriteImg.width / 2 - img.width / 2 && Y <= sprite.Y + spriteImg.height / 2 - img.height / 2) {
                 X -= enemyList[key].Speed;
                 Y += distanceY / iters;
             }
-            else {
+            // Право низ
+            else if (X > sprite.X + spriteImg.width / 2 - img.width / 2 && Y > sprite.Y + spriteImg.height / 2 - img.height / 2){
                 X -= enemyList[key].Speed;
                 Y -= distanceY / iters;
             }
         }
-        else if (Math.abs((sprite.Y - spriteImg.height / 2) - (enemyList[key].Y - img.height / 2)) > Math.abs((sprite.X - spriteImg.width / 2) - (enemyList[key].X - img.width / 2))) {
-            iters = Math.abs((sprite.Y - spriteImg.height / 2) - enemyList[key].Y) / enemyList[key].Speed;
-            if (X <= sprite.X + spriteImg.width / 2 && Y <= sprite.Y + img.height / 2) {
+        else if (Math.abs(sprite.Y - Y) > Math.abs(sprite.X - X)) {
+            iters = Math.abs(sprite.Y - Y) / enemyList[key].Speed;
+            // Лево верх
+            if (X <= sprite.X + spriteImg.width / 2 - img.width / 2 && Y <= sprite.Y + spriteImg.height / 2 - img.height / 2) {
                 X += distanceX / iters;
                 Y += enemyList[key].Speed;
             }
-            else if (X <= sprite.X + spriteImg.width / 2 && Y > sprite.Y + img.height / 2) {
+            // Лево низ
+            else if (X <= sprite.X + spriteImg.width / 2 - img.width / 2 && Y > sprite.Y + spriteImg.height / 2 - img.height / 2) {
                 X += distanceX / iters;
                 Y -= enemyList[key].Speed;
             }
-            else if (X > sprite.X + spriteImg.width / 2 && Y <= sprite.Y + img.height / 2) {
+            // Право верх
+            else if (X > sprite.X + spriteImg.width / 2 - img.width / 2 && Y <= sprite.Y + spriteImg.height / 2 - img.height / 2) {
                 X -= distanceX / iters;
                 Y += enemyList[key].Speed;
             }
-            else {
+            // Право низ
+            else if (X > sprite.X + spriteImg.width / 2 - img.width / 2 && Y > sprite.Y + spriteImg.height / 2 - img.height / 2) {
                 X -= distanceX / iters;
                 Y -= enemyList[key].Speed;
             }
