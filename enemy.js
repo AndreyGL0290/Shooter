@@ -1,37 +1,67 @@
 import { canvas as cnv, context as ctx, sprite, bullet, img as spriteImg } from "./script.js";
+let iters;
 let CoordX;
 let CoordY;
 let enemy1;
 let enemy2;
 let pointX;
 let pointY;
+let distanceX;
+let distanceY;
 let myBool = true;
 export let img = new Image();
 img.src = "images/monster.png";
 
 export let enemyList = {};
 
+// Функия заставляющая всех врагов ходить
 export const enemyMovement = (X, Y, key) => {
-    ctx.clearRect(X, Y, img.width, img.height);
-    if (X <= sprite.X - bullet.size / 2 - 1 && Y <= sprite.Y + img.height / 2 - 10) {
-        X += enemyList[key].Speed;
-        Y += enemyList[key].Speed;    
+    if (!enemyList[key].Dead && !sprite.Dead) {
+        distanceX = Math.abs((sprite.X - spriteImg.width / 2) - (enemyList[key].X - img.width / 2));
+        distanceY = Math.abs((sprite.Y - spriteImg.height / 2) - (enemyList[key].Y - img.height / 2));
+        ctx.clearRect(X, Y, img.width, img.height);
+        if (Math.abs((sprite.X - spriteImg.width / 2) - (enemyList[key].X - img.width / 2)) > Math.abs((sprite.Y - spriteImg.height / 2) - (enemyList[key].Y - img.height / 2))) {
+            iters = Math.abs((sprite.X - spriteImg.width / 2) - enemyList[key].X) / enemyList[key].Speed;
+            if (X <= sprite.X + spriteImg.width / 2 && Y <= sprite.Y + img.height / 2) {
+                X += enemyList[key].Speed;
+                Y += distanceY / iters;
+            }
+            else if (X <= sprite.X + spriteImg.width / 2 && Y > sprite.Y + img.height / 2) {
+                X += enemyList[key].Speed;
+                Y -= distanceY / iters;
+            }
+            else if (X > sprite.X + spriteImg.width / 2 && Y <= sprite.Y + img.height / 2) {
+                X -= enemyList[key].Speed;
+                Y += distanceY / iters;
+            }
+            else {
+                X -= enemyList[key].Speed;
+                Y -= distanceY / iters;
+            }
+        }
+        else if (Math.abs((sprite.Y - spriteImg.height / 2) - (enemyList[key].Y - img.height / 2)) > Math.abs((sprite.X - spriteImg.width / 2) - (enemyList[key].X - img.width / 2))) {
+            iters = Math.abs((sprite.Y - spriteImg.height / 2) - enemyList[key].Y) / enemyList[key].Speed;
+            if (X <= sprite.X + spriteImg.width / 2 && Y <= sprite.Y + img.height / 2) {
+                X += distanceX / iters;
+                Y += enemyList[key].Speed;
+            }
+            else if (X <= sprite.X + spriteImg.width / 2 && Y > sprite.Y + img.height / 2) {
+                X += distanceX / iters;
+                Y -= enemyList[key].Speed;
+            }
+            else if (X > sprite.X + spriteImg.width / 2 && Y <= sprite.Y + img.height / 2) {
+                X -= distanceX / iters;
+                Y += enemyList[key].Speed;
+            }
+            else {
+                X -= distanceX / iters;
+                Y -= enemyList[key].Speed;
+            }
+        }
+        enemyList[key].X = X;
+        enemyList[key].Y = Y;
+        ctx.drawImage(img, X, Y);
     }
-    else if (X <= sprite.X - bullet.size / 2 - 1 && Y > sprite.Y + img.height / 2 - 10) {
-        X += enemyList[key].Speed;
-        Y -= enemyList[key].Speed;    
-    }
-    else if (X > sprite.X + spriteImg.width + bullet.size / 2 + 1 && Y <= sprite.Y + img.height / 2 - 10) {
-        X -= enemyList[key].Speed;
-        Y += enemyList[key].Speed;
-    }
-    else{
-        X -= enemyList[key].Speed;
-        Y -= enemyList[key].Speed;
-    }
-    enemyList[key].X = X;
-    enemyList[key].Y = Y;
-    ctx.drawImage(img, X, Y);
 }
 
 export const enemySpawn = (numberOfEnemies, callback) => {
@@ -47,12 +77,12 @@ export const enemySpawn = (numberOfEnemies, callback) => {
             CoordX = Math.random().toFixed(3) * 1000;
             if (Math.random().toFixed(1) * 10 > 5) {
                 enemyList[i].Right = false;
-                while (CoordX >= (sprite.X - bullet.size / 2 - 1) - 300) {
+                while (CoordX >= (sprite.X - bullet.Size / 2 - 1) - 300) {
                     CoordX = Math.random().toFixed(3) * 1000;
                 }
             } else {
                 enemyList[i].Right = true;
-                while (CoordX <= (sprite.X + spriteImg.width + bullet.size / 2 + 1) + 300 || CoordX + img.width >= cnv.width) {
+                while (CoordX <= (sprite.X + spriteImg.width + bullet.Size / 2 + 1) + 300 || CoordX + img.width >= cnv.width) {
                     CoordX = Math.random().toFixed(4) * 10000;
                 }
             }
@@ -78,7 +108,7 @@ export const enemySpawn = (numberOfEnemies, callback) => {
                             }
                             while (myBool) {
                                 pointX = Math.random().toFixed(4) * 10000;
-                                while (pointX <= (sprite.X + spriteImg.width + bullet.size / 2 + 1) + 300 || pointX + img.width >= cnv.width) {
+                                while (pointX <= (sprite.X + spriteImg.width + bullet.Size / 2 + 1) + 300 || pointX + img.width >= cnv.width) {
                                     pointX = Math.random().toFixed(4) * 10000;
                                 }
                                 for (let key in enemyList) {
@@ -102,7 +132,7 @@ export const enemySpawn = (numberOfEnemies, callback) => {
                             }
                             while (myBool) {
                                 pointX = Math.random().toFixed(3) * 1000;
-                                while (pointX >= (sprite.X - bullet.size / 2 - 1) - 300) {
+                                while (pointX >= (sprite.X - bullet.Size / 2 - 1) - 300) {
                                     pointX = Math.random().toFixed(3) * 1000;
                                 }
                                 for (let key in enemyList) {
