@@ -11,14 +11,38 @@ img.src = "images/monster.png";
 
 export let enemyList = {};
 
-export const enemySpawn = (numberOfEnemies) => {
+export const enemyMovement = (X, Y, key) => {
+    ctx.clearRect(X, Y, img.width, img.height);
+    if (X <= sprite.X - bullet.size / 2 - 1 && Y <= sprite.Y + img.height / 2 - 10) {
+        X += enemyList[key].Speed;
+        Y += enemyList[key].Speed;    
+    }
+    else if (X <= sprite.X - bullet.size / 2 - 1 && Y > sprite.Y + img.height / 2 - 10) {
+        X += enemyList[key].Speed;
+        Y -= enemyList[key].Speed;    
+    }
+    else if (X > sprite.X + spriteImg.width + bullet.size / 2 + 1 && Y <= sprite.Y + img.height / 2 - 10) {
+        X -= enemyList[key].Speed;
+        Y += enemyList[key].Speed;
+    }
+    else{
+        X -= enemyList[key].Speed;
+        Y -= enemyList[key].Speed;
+    }
+    enemyList[key].X = X;
+    enemyList[key].Y = Y;
+    ctx.drawImage(img, X, Y);
+}
+
+export const enemySpawn = (numberOfEnemies, callback) => {
     img.onload = function () {
         for (let i = 1; i <= numberOfEnemies; i++) {
             enemyList[i] = {
                 X: null,
                 Y: null,
                 Right: false,
-                Dead: false
+                Dead: false,
+                Speed: 5
             };
             CoordX = Math.random().toFixed(3) * 1000;
             if (Math.random().toFixed(1) * 10 > 5) {
@@ -100,8 +124,10 @@ export const enemySpawn = (numberOfEnemies) => {
             ctx.drawImage(img, enemyList[key].X, enemyList[key].Y);
         }
     }
+    callback()
 }
 
+// Функция для определения правильного положения врага
 const wrongLoc = (X1, Y1, X2, Y2, img) => {
     return (X1 >= X2 && X1 <= X2 + img.width && Y1 >= Y2 && Y1 <= Y2 + img.height) ||
         (X1 >= X2 && X1 <= X2 + img.width && Y1 + img.height >= Y2 && Y1 + img.height <= Y2 + img.height) ||

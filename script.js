@@ -3,15 +3,16 @@ TO DO LIST:
 
 1) Написать логику для поведеня соперников
 
+2) Переделать регестрацию попаданий
+
 `
-import { enemySpawn, enemyList, img as enemyImg } from "./enemy.js";
+import { enemySpawn, enemyList, img as enemyImg, enemyMovement } from "./enemy.js";
 
 export let canvas = document.getElementById("canvas");
 export let context = canvas.getContext("2d");
 export let img = new Image();
 img.src = 'images/mainSpriteRight.png';
 let iters;
-let enemyDead;
 let enemyCoords;
 // Характеристики пули
 export const bullet = {
@@ -29,14 +30,20 @@ canvas.height = canvas.clientHeight;
 export let sprite = {
     X: canvas.width / 2 - img.width / 2,
     Y: canvas.height / 2 - img.height / 2,
-    speed: 5
+    speed: 7
 };
 
 // Спавнит 3 врагов рядом с персонажем
-enemySpawn(10);
-// setTimeout(() => {
-//     console.log(enemyList);
-// },10)
+enemySpawn(3, script => {
+    let timerId2 = setInterval(() => {
+        console.log(enemyList);
+        for (let key in enemyList){
+            enemyMovement(enemyList[key].X, enemyList[key].Y, key);
+        }
+    }, 100)
+    setTimeout(() => { clearInterval(timerId2); }, 10000);
+});
+
 // Функция, отслеживающая состоние клавишей
 let pressedKeys = {};
 onkeydown = onkeyup = function (e) {
@@ -145,13 +152,11 @@ canvas.addEventListener('mousedown', (e) => {
         }
         gunEnd.X = sprite.X - bullet.size / 2 - 1;
     }
-    if (enemyList != {}) {
-        enemyDead = false;
-    }
     let X = gunEnd.X;
     let Y = gunEnd.Y;
     let distantY = Math.abs(mouseLoc.Y - gunEnd.Y);
     let distantX = Math.abs(mouseLoc.X - gunEnd.X);
+
     // Функция отвечающая за полет пули
     const gunShot = (factor1, factor2) => {
         if (Math.abs(mouseLoc.X - gunEnd.X) > Math.abs(mouseLoc.Y - gunEnd.Y)) {
@@ -160,6 +165,7 @@ canvas.addEventListener('mousedown', (e) => {
                 context.clearRect(X - 5.5 - bullet.speed * factor1, Y - 5.5 - (distantY / iters) * factor2, 11, 11);
             }
             context.fillRect(X - bullet.size / 2, Y - bullet.size / 2, bullet.size, bullet.size);
+            // Проверка на попадание в соперника
             for (let key in potentiallyEnemies) {
                 enemyCoords = potentiallyEnemies[key];
                 if (wrongLoc(X, Y, enemyCoords.X, enemyCoords.Y, bullet.size, enemyImg) && !enemyCoords.Dead) {
@@ -178,6 +184,7 @@ canvas.addEventListener('mousedown', (e) => {
                 context.clearRect(X - 5.5 - (distantX / iters) * factor1, Y - 5.5 - bullet.speed * factor2, 11, 11);
             }
             context.fillRect(X - bullet.size / 2, Y - bullet.size / 2, bullet.size, bullet.size);
+            // Проверка на попадание в соперника
             for (let key in potentiallyEnemies) {
                 enemyCoords = potentiallyEnemies[key];
                 if (wrongLoc(X, Y, enemyCoords.X, enemyCoords.Y, bullet.size, enemyImg) && !enemyCoords.Dead) {
