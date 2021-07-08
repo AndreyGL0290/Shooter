@@ -5,7 +5,7 @@ TO DO LIST:
 
 2) Сделать не большой рефакторинг кода
 `
-import { enemySpawn, enemyList, img as enemyImg, enemyMovement } from "./enemy.js";
+import { enemySpawn, enemyList, img as enemyImg, enemyMovement, enemyListCopy } from "./enemy.js";
 
 // Основной холст
 export let canvas = document.getElementById("canvas");
@@ -18,15 +18,17 @@ let contextHealth = canvasHealth.getContext('2d');
 // Старотовое изображение
 export let img = new Image();
 
-// Изображение сердца
+// Изображения сердец
+let emptyHeartImg = new Image();
 let heartImg = new Image();
 heartImg.onload = function () {
-    for (let i = 1; i <= 3; i++){
+    for (let i = 1; i <= 3; i++) {
         contextHealth.drawImage(heartImg, canvasHealth.width - heartImg.width * i, 0);
     }
 }
 
-// Ссылка на изображения
+// Ссылки на изображения
+emptyHeartImg.src = 'images/heart.png';
 heartImg.src = 'images/filledheart.png';
 img.src = 'images/mainSpriteRight.png';
 
@@ -49,41 +51,56 @@ export let sprite = {
     X: canvas.width / 2 - img.width / 2,
     Y: canvas.height / 2 - img.height / 2,
     Health: 3,
+    Dead: false,
     Speed: 7
 };
+const drawEmptyHeart = () => {
+    console.log(canvasHealth.width - emptyHeartImg.width * sprite.Health)
+    contextHealth.clearRect(canvasHealth.width - emptyHeartImg.width * sprite.Health, 0, emptyHeartImg.width, emptyHeartImg.height);
+    contextHealth.drawImage(emptyHeartImg, canvasHealth.width - emptyHeartImg.width * sprite.Health, 0);
+}
+let intervalStop = false;
 
 // Спавнит 3 врагов рядом с персонажем и в колбэке заставляет их двигаться к нему
-const spawn = () => {
-    enemySpawn(3, script => {
-        const enemyListCopy = enemyList;
-        let timerId2 = setInterval(() => {
-            for (let key in enemyList) {
-                enemyMovement(enemyList[key].X, enemyList[key].Y, key);
-                if (wrongLoc(enemyList[key].X, enemyList[key].Y, sprite.X, sprite.Y, enemyImg, img)) {
-                    sprite.Health -= 1;
-                    if (sprite.Health != 0) {
-                        context.clearRect(0, 0, canvas.width, canvas.height);
-                        sprite.X = canvas.width / 2 - img.width / 2;
-                        sprite.Y = canvas.height / 2 - img.height / 2;
-                        for (let key in enemyListCopy) {
-                            enemyList[key] = enemyListCopy[key];
+enemySpawn(3, script => {
+    let timerId2 = setInterval(() => {
+        for (let key in enemyList) {
+            enemyMovement(enemyList[key].X, enemyList[key].Y, key);
+            if (wrongLoc(enemyList[key].X, enemyList[key].Y, sprite.X, sprite.Y, enemyImg, img) && !intervalStop) {
+                intervalStop = true;
+                sprite.Dead = true;
+                drawEmptyHeart();
+                sprite.Health -= 1;
+                if (sprite.Health != 0) {
+                    sprite.X = canvas.width / 2 - img.width / 2;
+                    sprite.Y = canvas.height / 2 - img.height / 2;
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                    turnRight();
+                    setTimeout(() => {
+                        for (let key in enemyList) {
+                            enemyList[key].X = enemyListCopy[key].X;
+                            enemyList[key].Y = enemyListCopy[key].Y;
                         }
-                        turnRight();
-                        setTimeout(() => { spawn(); }, 1000);
-                    }
+                        for (let key in enemyList) {
+                            if (!enemyList[key].Dead) {
+                                context.drawImage(enemyImg, enemyList[key].X, enemyList[key].Y);
+                            }
+                        }
+                        sprite.Dead = false;
+                        intervalStop = false;
+                    }, 1000);
+                } else {
                     clearInterval(timerId2);
                 }
             }
-        }, 100)
-    });
-}
-
-spawn();
+        }
+    }, 100)
+});
 
 // Функция, отслеживающая состоние клавишей
 let pressedKeys = {};
 onkeydown = onkeyup = function (e) {
-    if (sprite.Health != 0) {
+    if (!sprite.Dead && sprite.Health != 0) {
         pressedKeys[e.keyCode] = e.type == 'keydown';
         // Функция бинда кнопок
         const movement = (key_code, axis, factor) => {
@@ -124,7 +141,7 @@ onkeydown = onkeyup = function (e) {
 
 // При нажатии на холст, вылетает пуля
 canvas.addEventListener('mousedown', (e) => {
-    if (sprite.Health != 0) {
+    if (!sprite.Dead && sprite.Health != 0) {
         // Координаты места нажатия на холст
         const mouseLoc = {
             X: e.offsetX,

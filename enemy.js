@@ -16,7 +16,7 @@ export let enemyList = {};
 
 // Функия заставляющая всех врагов ходить
 export const enemyMovement = (X, Y, key) => {
-    if (!enemyList[key].Dead && sprite.Health != 0) {
+    if (!enemyList[key].Dead && !sprite.Dead && sprite.Health != 0) {
         distanceX = Math.abs(sprite.X - X);
         distanceY = Math.abs(sprite.Y - Y);
         ctx.clearRect(X, Y, img.width, img.height);
@@ -38,7 +38,7 @@ export const enemyMovement = (X, Y, key) => {
                 Y += distanceY / iters;
             }
             // Право низ
-            else if (X > sprite.X + spriteImg.width / 2 - img.width / 2 && Y > sprite.Y + spriteImg.height / 2 - img.height / 2){
+            else if (X > sprite.X + spriteImg.width / 2 - img.width / 2 && Y > sprite.Y + spriteImg.height / 2 - img.height / 2) {
                 X -= enemyList[key].Speed;
                 Y -= distanceY / iters;
             }
@@ -71,11 +71,21 @@ export const enemyMovement = (X, Y, key) => {
         ctx.drawImage(img, X, Y);
     }
 }
+export let  enemyListCopy = {};
 
+// Функция савнищяя врагов
 export const enemySpawn = (numberOfEnemies, callback) => {
     img.onload = function () {
         for (let i = 1; i <= numberOfEnemies; i++) {
             enemyList[i] = {
+                X: null,
+                Y: null,
+                Right: false,
+                Dead: false,
+                Speed: 5
+            };
+
+            enemyListCopy[i] = {
                 X: null,
                 Y: null,
                 Right: false,
@@ -101,6 +111,8 @@ export const enemySpawn = (numberOfEnemies, callback) => {
             // Создаем список характеристик каждому врагу
             enemyList[i].X = CoordX;
             enemyList[i].Y = CoordY;
+            enemyListCopy[i].X = CoordX;
+            enemyListCopy[i].Y = CoordY;
         }
         for (let key1 in enemyList) {
             for (let key2 in enemyList) {
@@ -129,7 +141,9 @@ export const enemySpawn = (numberOfEnemies, callback) => {
                                 }
                             }
                             enemy1.X = pointX;
+                            enemyListCopy[key].X = pointX;
                             enemy1.Y = pointY;
+                            enemyListCopy[key].Y = pointY;
                         }
                     } else {
                         if (wrongLoc(enemy1.X, enemy1.Y, enemy2.X, enemy2.Y, img)) {
@@ -152,7 +166,9 @@ export const enemySpawn = (numberOfEnemies, callback) => {
                                 }
                             }
                             enemy1.X = pointX;
+                            enemyListCopy[key].X = pointX;
                             enemy1.Y = pointY;
+                            enemyListCopy[key].Y = pointY;
                         }
                     }
                 }
