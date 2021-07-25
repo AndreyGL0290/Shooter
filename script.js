@@ -4,6 +4,7 @@ TO DO LIST:
 1) Сдеалать рестарт
 
 2) Сделать не большой рефакторинг кода
+
 `
 import { enemySpawn, enemyList, img as enemyImg, enemyMovement, enemyListCopy } from "./enemy.js";
 
@@ -34,8 +35,9 @@ img.src = 'images/mainSpriteRight.png';
 
 // Характеристики пули
 export const bullet = {
-    Size: 10,
-    Speed: 15
+    Size: 7,
+    Speed: 15,
+    Damage: 25
 };
 
 context.fillStyle = 'black';
@@ -55,15 +57,14 @@ export let sprite = {
     Speed: 7
 };
 const drawEmptyHeart = () => {
-    console.log(canvasHealth.width - emptyHeartImg.width * sprite.Health)
     contextHealth.clearRect(canvasHealth.width - emptyHeartImg.width * sprite.Health, 0, emptyHeartImg.width, emptyHeartImg.height);
     contextHealth.drawImage(emptyHeartImg, canvasHealth.width - emptyHeartImg.width * sprite.Health, 0);
 }
 let intervalStop = false;
-
+let opacityCounter = 0;
 // Спавнит 3 врагов рядом с персонажем и в колбэке заставляет их двигаться к нему
-enemySpawn(3, script => {
-    let timerId2 = setInterval(() => {
+enemySpawn(1, script => {
+    const timerId2 = setInterval(() => {
         for (let key in enemyList) {
             enemyMovement(enemyList[key].X, enemyList[key].Y, key);
             if (wrongLoc(enemyList[key].X, enemyList[key].Y, sprite.X, sprite.Y, enemyImg, img) && !intervalStop) {
@@ -80,6 +81,7 @@ enemySpawn(3, script => {
                         for (let key in enemyList) {
                             enemyList[key].X = enemyListCopy[key].X;
                             enemyList[key].Y = enemyListCopy[key].Y;
+                            enemyList[key].Health = enemyListCopy[key].Health;
                         }
                         for (let key in enemyList) {
                             if (!enemyList[key].Dead) {
@@ -90,6 +92,15 @@ enemySpawn(3, script => {
                         intervalStop = false;
                     }, 1000);
                 } else {
+                    document.getElementById('blackout').style.zIndex = "3";
+                    document.getElementById("end").textContent = "GAME OVER";
+                    const timerId3 = setInterval(() => {
+                        if (Math.floor(opacityCounter) == 1) {
+                            clearInterval(timerId3);
+                        }
+                        opacityCounter += 0.01;
+                        document.getElementById('blackout').style.opacity = opacityCounter.toFixed(2) + "";
+                    }, 10);
                     clearInterval(timerId2);
                 }
             }
@@ -189,7 +200,6 @@ canvas.addEventListener('mousedown', (e) => {
                 }
             }
         }
-        // console.log(potentiallyEnemies);
 
         // Игрок не может стрелять вверх и вниз
         if (mouseLoc.X >= sprite.X - bullet.Size / 2 - 1 && mouseLoc.X <= sprite.X + img.width + bullet.Size / 2 + 1) {
@@ -211,7 +221,7 @@ canvas.addEventListener('mousedown', (e) => {
         let X = gunEnd.X;
         let Y = gunEnd.Y;
         let iters;
-        let enemyCoords;
+        let enemy;
         let distanceY = Math.abs(mouseLoc.Y - gunEnd.Y);
         let distanceX = Math.abs(mouseLoc.X - gunEnd.X);
 
@@ -225,12 +235,15 @@ canvas.addEventListener('mousedown', (e) => {
                 context.fillRect(X - bullet.Size / 2, Y - bullet.Size / 2, bullet.Size, bullet.Size);
                 // Проверка на попадание в соперника
                 for (let key in potentiallyEnemies) {
-                    enemyCoords = potentiallyEnemies[key];
-                    if (wrongLoc(X, Y, enemyCoords.X, enemyCoords.Y, bullet.Size, enemyImg) && !enemyCoords.Dead) {
-                        enemyList[key].Dead = true;
-                        context.clearRect(enemyCoords.X, enemyCoords.Y, enemyImg.width, enemyImg.height);
+                    enemy = potentiallyEnemies[key];
+                    if (wrongLoc(X, Y, enemy.X, enemy.Y, bullet.Size, enemyImg) && !enemy.Dead) {
                         context.clearRect(X - (bullet.Size + 1) / 2, Y - (bullet.Size + 1) / 2, bullet.Size + 1, bullet.Size + 1);
-                        clearInterval(timerId);
+                        enemy.Health -= bullet.Damage;
+                        if (enemy.Health <= 0) {
+                            enemyList[key].Dead = true;
+                            context.clearRect(enemy.X, enemy.Y, enemyImg.width, enemyImg.height);
+                        }
+                        clearInterval(timerId1);
                     }
                 }
                 X += bullet.Speed * factor1;
@@ -244,14 +257,15 @@ canvas.addEventListener('mousedown', (e) => {
                 context.fillRect(X - bullet.Size / 2, Y - bullet.Size / 2, bullet.Size, bullet.Size);
                 // Проверка на попадание в соперника
                 for (let key in potentiallyEnemies) {
-                    enemyCoords = potentiallyEnemies[key];
-                    if (wrongLoc(X, Y, enemyCoords.X, enemyCoords.Y, bullet.Size, enemyImg) && !enemyCoords.Dead) {
-                        enemyList[key].Dead = true;
-                        delete enemyList[key];
-                        console.log(enemyList);
-                        context.clearRect(enemyCoords.X, enemyCoords.Y, enemyImg.width, enemyImg.height);
+                    enemy = potentiallyEnemies[key];
+                    if (wrongLoc(X, Y, enemy.X, enemy.Y, bullet.Size, enemyImg) && !enemy.Dead) {
                         context.clearRect(X - (bullet.Size + 1) / 2, Y - (bullet.Size + 1) / 2, bullet.Size + 1, bullet.Size + 1);
-                        clearInterval(timerId);
+                        enemy.Health -= bullet.Damage;
+                        if (enemy.Health == 0) {
+                            enemyList[key].Dead = true;
+                            context.clearRect(enemy.X, enemy.Y, enemyImg.width, enemyImg.height);
+                        }
+                        clearInterval(timerId1);
                     }
                 }
                 X += (distanceX / iters) * factor1;
@@ -260,14 +274,14 @@ canvas.addEventListener('mousedown', (e) => {
         }
 
         // Запускаем функцию отрисовки пули каждые 0.05 секунды
-        const timerId = setInterval(() => {
+        const timerId1 = setInterval(() => {
             // Когда пуля выйдет за границу экрана, то отрисовка пректратится
             if (X - bullet.Size / 2 >= canvas.width ||
                 Y - bullet.Size / 2 >= canvas.height ||
                 X - bullet.Size / 2 <= 0 ||
                 Y - bullet.Size / 2 <= 0) {
                 context.clearRect(X, Y, bullet.Size, bullet.Size);
-                clearInterval(timerId);
+                clearInterval(timerId1);
             }
             // Разделим холст на четыре сектора
             // Право низ
@@ -318,5 +332,5 @@ const wrongLoc = (X1, Y1, X2, Y2, img1, img2) => {
         (X1 + img1.width >= X2 && X1 + img1.width <= X2 + img2.width && Y1 >= Y2 && Y1 <= Y2 + img2.height) ||
         (X1 + img1.width >= X2 && X1 + img1.width <= X2 + img2.width && Y1 + img1.height >= Y2 && Y1 + img1.height <= Y2 + img2.height);
 }
-
+z
 turnRight();
