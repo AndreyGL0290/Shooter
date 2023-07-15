@@ -64,7 +64,7 @@ let intervalStop = false;
 let opacityCounter = 0;
 
 // Спавнит 3 врагов рядом с персонажем и в колбэке заставляет их двигаться к нему
-enemySpawn(1, script => {
+enemySpawn(20, script => {
     const timerId2 = setInterval(() => {
         for (let key in enemyList) {
             enemyMovement(enemyList[key].X, enemyList[key].Y, key);
