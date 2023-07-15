@@ -241,7 +241,7 @@ canvas.addEventListener('mousedown', (e) => {
                         context.clearRect(X - (bullet.Size + 1) / 2, Y - (bullet.Size + 1) / 2, bullet.Size + 1, bullet.Size + 1);
                         enemy.Health -= bullet.Damage;
                         if (enemy.Health <= 0) {
-                            enemyList[key].Dead = true;
+                            delete enemyList[key]
                             context.clearRect(enemy.X, enemy.Y, enemyImg.width, enemyImg.height);
                         }
                         clearInterval(timerId1);
