@@ -332,5 +332,5 @@ const wrongLoc = (X1, Y1, X2, Y2, img1, img2) => {
         (X1 + img1.width >= X2 && X1 + img1.width <= X2 + img2.width && Y1 >= Y2 && Y1 <= Y2 + img2.height) ||
         (X1 + img1.width >= X2 && X1 + img1.width <= X2 + img2.width && Y1 + img1.height >= Y2 && Y1 + img1.height <= Y2 + img2.height);
 }
-z
+
 turnRight();
