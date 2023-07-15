@@ -71,7 +71,7 @@ export const enemyMovement = (X, Y, key) => {
         ctx.drawImage(img, X, Y);
     }
 }
-export let  enemyListCopy = {};
+export let enemyListCopy = {};
 
 // Функция савнищяя врагов
 export const enemySpawn = (numberOfEnemies, callback) => {
@@ -82,7 +82,8 @@ export const enemySpawn = (numberOfEnemies, callback) => {
                 Y: null,
                 Right: false,
                 Dead: false,
-                Speed: 5
+                Health: 100,
+                Speed: 2
             };
 
             enemyListCopy[i] = {
@@ -90,8 +91,10 @@ export const enemySpawn = (numberOfEnemies, callback) => {
                 Y: null,
                 Right: false,
                 Dead: false,
-                Speed: 5
+                Health: 100,
+                Speed: 2
             };
+
             CoordX = Math.random().toFixed(3) * 1000;
             if (Math.random().toFixed(1) * 10 > 5) {
                 enemyList[i].Right = false;

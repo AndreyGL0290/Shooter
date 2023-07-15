@@ -9,7 +9,10 @@
 </head>
 <body>
     <div id="canvas-container">
-        <canvas id="canvas" style="z-index: 1;"></canvas>
+        <canvas id="canvas" style="z-index: 2;"></canvas>
+        <div id="blackout" style="z-index: 1; opacity: 0;">
+            <span id="end"></span>
+        </div>
         <canvas id="canvas-health" style="z-index: 0;"></canvas>
     </div>
     <script src="script.js" type="module"></script>

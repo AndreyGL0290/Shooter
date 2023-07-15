@@ -62,6 +62,7 @@ const drawEmptyHeart = () => {
 }
 let intervalStop = false;
 let opacityCounter = 0;
+
 // Спавнит 3 врагов рядом с персонажем и в колбэке заставляет их двигаться к нему
 enemySpawn(1, script => {
     const timerId2 = setInterval(() => {
@@ -105,7 +106,7 @@ enemySpawn(1, script => {
                 }
             }
         }
-    }, 100)
+    }, 17)
 });
 
 // Функция, отслеживающая состоние клавишей
@@ -276,10 +277,10 @@ canvas.addEventListener('mousedown', (e) => {
         // Запускаем функцию отрисовки пули каждые 0.05 секунды
         const timerId1 = setInterval(() => {
             // Когда пуля выйдет за границу экрана, то отрисовка пректратится
-            if (X - bullet.Size / 2 >= canvas.width ||
-                Y - bullet.Size / 2 >= canvas.height ||
-                X - bullet.Size / 2 <= 0 ||
-                Y - bullet.Size / 2 <= 0) {
+            if (X >= canvas.width ||
+                Y >= canvas.height ||
+                X + bullet.Size <= 0 ||
+                Y + bullet.Size <= 0) {
                 context.clearRect(X, Y, bullet.Size, bullet.Size);
                 clearInterval(timerId1);
             }
@@ -300,7 +301,7 @@ canvas.addEventListener('mousedown', (e) => {
             else if (mouseLoc.Y < gunEnd.Y && mouseLoc.X < gunEnd.X) {
                 gunShot(-1, -1);
             }
-        }, 50);
+        }, 17);
     }
 }, false)
 
@@ -332,5 +333,5 @@ const wrongLoc = (X1, Y1, X2, Y2, img1, img2) => {
         (X1 + img1.width >= X2 && X1 + img1.width <= X2 + img2.width && Y1 >= Y2 && Y1 <= Y2 + img2.height) ||
         (X1 + img1.width >= X2 && X1 + img1.width <= X2 + img2.width && Y1 + img1.height >= Y2 && Y1 + img1.height <= Y2 + img2.height);
 }
-z
+
 turnRight();
